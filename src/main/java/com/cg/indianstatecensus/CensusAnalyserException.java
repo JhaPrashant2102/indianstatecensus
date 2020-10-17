@@ -2,7 +2,7 @@ package com.cg.indianstatecensus;
 
 public class CensusAnalyserException extends Exception {
 	enum ExceptionType{
-		CENSUS_FILE_PROBLEM, UNABLE_TO_PARSE;
+		CENSUS_FILE_PROBLEM,INCORRECT_CLASS_TYPE,INCORRECT_DELIMITER,INCORRECT_HEADER;
 		
 	}
 	
