@@ -5,6 +5,7 @@ import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Iterator;
+import java.util.stream.StreamSupport;
 
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
@@ -17,15 +18,15 @@ public class CensusAnalyser {
 			csvToBeanBuilder.withType(IndiaCensusCSV.class);
 			csvToBeanBuilder.withIgnoreLeadingWhiteSpace(true);
 			CsvToBean<IndiaCensusCSV> csvToBean = csvToBeanBuilder.build();
-			Iterator<IndiaCensusCSV> CsvCensusIterator = csvToBean.iterator();
-			int numOfEntries = 0;
-			while(CsvCensusIterator.hasNext()) {
-				numOfEntries++;
-				CsvCensusIterator.next();
-			}
+			Iterator<IndiaCensusCSV> csvCensusIterator = csvToBean.iterator();
+			Iterable<IndiaCensusCSV> csvIterable = () -> csvCensusIterator;
+			int numOfEntries = (int) StreamSupport.stream(csvIterable.spliterator(), false).count();
 			return numOfEntries;
-			}catch(IOException e) {
-			throw new CensusAnalyserException(e.getMessage(),CensusAnalyserException.ExceptionType.CENSUS_FILE_PROBLEM);
+		} catch (IOException e) {
+			throw new CensusAnalyserException(e.getMessage(),
+					CensusAnalyserException.ExceptionType.CENSUS_FILE_PROBLEM);
+		} catch (IllegalStateException e) {
+			throw new CensusAnalyserException(e.getMessage(), CensusAnalyserException.ExceptionType.UNABLE_TO_PARSE);
 		}
 	}
 }
