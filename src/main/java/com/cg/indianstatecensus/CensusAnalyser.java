@@ -13,7 +13,7 @@ import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 
 public class CensusAnalyser {
-	public int loadIndiaCensusData(String csvFilePath) throws CensusAnalyserException {
+	public int loadIndiaCensusData(String csvFilePath, boolean flag) throws CensusAnalyserException {
 		try (Reader reader = Files.newBufferedReader(Paths.get(csvFilePath))) {
 			CsvToBeanBuilder<IndiaCensusCSV> csvToBeanBuilder = new CsvToBeanBuilder<IndiaCensusCSV>(reader);
 			csvToBeanBuilder.withType(IndiaCensusCSV.class);
@@ -22,25 +22,26 @@ public class CensusAnalyser {
 			Iterator<IndiaCensusCSV> csvCensusIterator = csvToBean.iterator();
 			Iterable<IndiaCensusCSV> csvIterable = () -> csvCensusIterator;
 			int numOfEntries = (int) StreamSupport.stream(csvIterable.spliterator(), false).count();
-			BufferedReader bufferedReader = new BufferedReader(new FileReader(csvFilePath));
-			String line = bufferedReader.readLine();
-			boolean flagForHeader = true;
-			while (line != null) {
-				if (!line.contains(","))
-					throw new CensusAnalyserException("Incorrect Delimiter",
-							CensusAnalyserException.ExceptionType.INCORRECT_DELIMITER);
-				if (flagForHeader) {
-					String[] headers = line.split(",");
-					if (!(headers[0].equals("State") && headers[1].equals("Population")
-							&& headers[2].equals("AreaInSqKm") && headers[3].equals("DensityPerSqKm")))
-						throw new CensusAnalyserException("Incorrect Headers",
-								CensusAnalyserException.ExceptionType.INCORRECT_HEADER);
-					flagForHeader = false;
+			if (flag) {
+				BufferedReader bufferedReader = new BufferedReader(new FileReader(csvFilePath));
+				String line = bufferedReader.readLine();
+				boolean flagForHeader = true;
+				while (line != null) {
+					if (!line.contains(","))
+						throw new CensusAnalyserException("Incorrect Delimiter",
+								CensusAnalyserException.ExceptionType.INCORRECT_DELIMITER);
+					if (flagForHeader) {
+						String[] headers = line.split(",");
+						if (!(headers[0].equals("State") && headers[1].equals("Population")
+								&& headers[2].equals("AreaInSqKm") && headers[3].equals("DensityPerSqKm")))
+							throw new CensusAnalyserException("Incorrect Headers",
+									CensusAnalyserException.ExceptionType.INCORRECT_HEADER);
+						flagForHeader = false;
+					}
+					line = bufferedReader.readLine();
 				}
-				line = bufferedReader.readLine();
-
+				bufferedReader.close();
 			}
-			bufferedReader.close();
 			return numOfEntries;
 		} catch (IOException e) {
 			throw new CensusAnalyserException(e.getMessage(),
@@ -51,7 +52,7 @@ public class CensusAnalyser {
 		}
 	}
 
-	public int loadIndiaStateCodeData(String csvFilePath,boolean flag) throws CensusAnalyserException {
+	public int loadIndiaStateCodeData(String csvFilePath, boolean flag) throws CensusAnalyserException {
 		try (Reader reader = Files.newBufferedReader(Paths.get(csvFilePath))) {
 			CsvToBeanBuilder<CSVStates> csvToBeanBuilder = new CsvToBeanBuilder<CSVStates>(reader);
 			csvToBeanBuilder.withType(CSVStates.class);
