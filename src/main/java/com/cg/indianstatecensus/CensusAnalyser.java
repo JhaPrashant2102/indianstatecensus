@@ -46,4 +46,38 @@ public class CensusAnalyser {
 			throw new CensusAnalyserException(e.getMessage(), CensusAnalyserException.ExceptionType.INCORRECT_CLASS_TYPE);
 		}
 	}
+	
+	public int loadIndiaStateCodeData(String csvFilePath) throws CensusAnalyserException {
+		try (Reader reader = Files.newBufferedReader(Paths.get(csvFilePath))){
+			CsvToBeanBuilder<CSVStates> csvToBeanBuilder = new CsvToBeanBuilder<CSVStates>(reader);
+			csvToBeanBuilder.withType(CSVStates.class);
+			csvToBeanBuilder.withIgnoreLeadingWhiteSpace(true);
+			CsvToBean<CSVStates> csvToBean = csvToBeanBuilder.build();
+			Iterator<CSVStates> csvCensusIterator = csvToBean.iterator();
+			Iterable<CSVStates> csvIterable = () -> csvCensusIterator;
+			int numOfEntries = (int) StreamSupport.stream(csvIterable.spliterator(), false).count();
+			BufferedReader bufferedReader = new BufferedReader(new FileReader(csvFilePath));
+			String line = bufferedReader.readLine();
+			boolean flagForHeader = true;
+            while (line!= null) {
+            	if(!line.contains(","))
+            		throw new CensusAnalyserException("Incorrect Delimiter",  CensusAnalyserException.ExceptionType.INCORRECT_DELIMITER);
+            	if(flagForHeader) {
+            		String[] headers = line.split(",");
+            		if(!(headers[0].equals("SrNo")&&headers[1].equals("State Name")&&headers[2].equals("TIN")&&headers[3].equals("StateCode")))
+            			throw new CensusAnalyserException("Incorrect Headers",CensusAnalyserException.ExceptionType.INCORRECT_HEADER);
+            		flagForHeader = false;
+            	}
+            	line = bufferedReader.readLine();
+            	
+            }
+            bufferedReader.close();
+			return numOfEntries;
+		} catch (IOException e) {
+			throw new CensusAnalyserException(e.getMessage(),
+					CensusAnalyserException.ExceptionType.CENSUS_FILE_PROBLEM);
+		} catch (IllegalStateException e) {
+			throw new CensusAnalyserException(e.getMessage(), CensusAnalyserException.ExceptionType.INCORRECT_CLASS_TYPE);
+		}
+	}
 }
