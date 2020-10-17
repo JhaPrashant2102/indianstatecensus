@@ -39,8 +39,6 @@ public class CensusAnalyser {
             }
             bufferedReader.close();
 			return numOfEntries;
-
-			
 		} catch (IOException e) {
 			throw new CensusAnalyserException(e.getMessage(),
 					CensusAnalyserException.ExceptionType.CENSUS_FILE_PROBLEM);
