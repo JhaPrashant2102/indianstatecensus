@@ -1,5 +1,7 @@
 package com.cg.indianstatecensus;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
@@ -20,12 +22,30 @@ public class CensusAnalyser {
 			Iterator<IndiaCensusCSV> csvCensusIterator = csvToBean.iterator();
 			Iterable<IndiaCensusCSV> csvIterable = () -> csvCensusIterator;
 			int numOfEntries = (int) StreamSupport.stream(csvIterable.spliterator(), false).count();
+			BufferedReader bufferedReader = new BufferedReader(new FileReader(csvFilePath));
+			String line = bufferedReader.readLine();
+			boolean flagForHeader = true;
+            while (line!= null) {
+            	if(!line.contains(","))
+            		throw new CensusAnalyserException("Incorrect Delimiter",  CensusAnalyserException.ExceptionType.INCORRECT_DELIMITER);
+            	if(flagForHeader) {
+            		String[] headers = line.split(",");
+            		if(!(headers[0].equals("State")&&headers[1].equals("Population")&&headers[2].equals("AreaInSqKm")&&headers[3].equals("DensityPerSqKm")))
+            			throw new CensusAnalyserException("Incorrect Headers",CensusAnalyserException.ExceptionType.INCORRECT_HEADER);
+            		flagForHeader = false;
+            	}
+            	line = bufferedReader.readLine();
+            	
+            }
+            bufferedReader.close();
 			return numOfEntries;
+
+			
 		} catch (IOException e) {
 			throw new CensusAnalyserException(e.getMessage(),
 					CensusAnalyserException.ExceptionType.CENSUS_FILE_PROBLEM);
 		} catch (IllegalStateException e) {
-			throw new CensusAnalyserException(e.getMessage(), CensusAnalyserException.ExceptionType.UNABLE_TO_PARSE);
+			throw new CensusAnalyserException(e.getMessage(), CensusAnalyserException.ExceptionType.INCORRECT_CLASS_TYPE);
 		}
 	}
 }
