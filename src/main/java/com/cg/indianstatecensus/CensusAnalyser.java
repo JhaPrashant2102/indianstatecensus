@@ -12,7 +12,8 @@ import java.util.stream.StreamSupport;
 public class CensusAnalyser {
 	public int loadIndiaCensusData(String csvFilePath, boolean flag) throws CensusAnalyserException {
 		try (Reader reader = Files.newBufferedReader(Paths.get(csvFilePath))) {
-			Iterator<IndiaCensusCSV> censusCsvIterator = 	new OpenCsvBuilder().getCsvFileIterator(reader, IndiaCensusCSV.class);
+			ICSVBuilder csvBuilder = CSVBuilderFactory.createCSVBuilder();
+			Iterator<IndiaCensusCSV> censusCsvIterator = csvBuilder.getCsvFileIterator(reader, IndiaCensusCSV.class);
 			if (flag) {
 				BufferedReader bufferedReader = new BufferedReader(new FileReader(csvFilePath));
 				String line = bufferedReader.readLine();
@@ -42,7 +43,8 @@ public class CensusAnalyser {
 
 	public int loadIndiaStateCodeData(String csvFilePath, boolean flag) throws CensusAnalyserException {
 		try (Reader reader = Files.newBufferedReader(Paths.get(csvFilePath))) {
-			Iterator<CSVStates> stateCsvIterator = new OpenCsvBuilder().getCsvFileIterator(reader, CSVStates.class);
+			ICSVBuilder csvBuilder = CSVBuilderFactory.createCSVBuilder();
+			Iterator<CSVStates> stateCsvIterator = csvBuilder.getCsvFileIterator(reader, CSVStates.class);
 			if (flag) {
 				BufferedReader bufferedReader = new BufferedReader(new FileReader(csvFilePath));
 				String line = bufferedReader.readLine();
