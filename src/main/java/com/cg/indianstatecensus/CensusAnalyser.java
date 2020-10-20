@@ -130,4 +130,15 @@ public class CensusAnalyser<E> {
 		return sortedJsonData;
 	}
 
+	public String populationWiseSortedCensusDataInJsonFormat(String csvFilePath) throws CensusAnalyserException {
+		List<IndiaCensusCSV> censusList = (List<IndiaCensusCSV>) getCSVFileList(csvFilePath, IndiaCensusCSV.class);
+		if (censusList.size() == 0 || censusList == null) {
+			throw new CensusAnalyserException("Empty List", ExceptionType.EMPTY_LIST);
+		}
+		List<IndiaCensusCSV> sortedList = censusList.stream().sorted(Comparator.comparing(IndiaCensusCSV::getPopulation))
+				.collect(Collectors.toList());
+		String sortedJsonData = new Gson().toJson(sortedList);
+		return sortedJsonData;
+	}
+
 }
