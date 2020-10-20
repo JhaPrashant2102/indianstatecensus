@@ -119,4 +119,15 @@ public class CensusAnalyser<E> {
 		return sortedJsonData;
 	}
 
+	public String stateWiseStateCodeSortedStateCodeDataInJsonFormat(String csvFilePath) throws CensusAnalyserException {
+		List<CSVStates> censusList = (List<CSVStates>) getCSVFileList(csvFilePath, CSVStates.class);
+		if (censusList.size() == 0 || censusList == null) {
+			throw new CensusAnalyserException("Empty List", ExceptionType.EMPTY_LIST);
+		}
+		List<CSVStates> sortedList = censusList.stream().sorted(Comparator.comparing(CSVStates::getStateCode))
+				.collect(Collectors.toList());
+		String sortedJsonData = new Gson().toJson(sortedList);
+		return sortedJsonData;
+	}
+
 }
