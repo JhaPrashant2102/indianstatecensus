@@ -1,18 +1,26 @@
 package com.cg.indianstatecensus;
 
+import static org.junit.Assert.assertArrayEquals;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import com.google.gson.Gson;
+
 public class CensusAnalyserTest {
 
-	private static final String INDIA_CENSUS_CSV_FILE_PATH = "./src/test/IndiaStateCensusData.csv";
+	private static final String INDIA_CENSUS_CSV_FILE_PATH = "./src/resource/IndiaStateCensusData.csv";
 	private static final String WRONG_CSV_FILE_PATH = "./src/main/IndiaStateCensusData.csv";
-	private static final String STATE_CODE_CSV_FILE = "./src/test/IndiaStateCode.csv";
-	private static final String DELIMITER_CHECK_FILE = "./src/test/DelimiterCheckFile.csv";
-	private static final String HEADER_CHECK_FILE = "./src/test/HeaderCheckFile.csv";
-	private static final String DELIMITER_STATE_CODE_CHECK_FILE = "./src/test/StateCodeDelimiterCheckFile.csv";
-	private static final String HEADER_STATE_CODE_CHECK_FILE = "./src/test/StateCodeHeaderCheckFile.csv";
+	private static final String STATE_CODE_CSV_FILE = "./src/resource/IndiaStateCode.csv";
+	private static final String DELIMITER_CHECK_FILE = "./src/resource/DelimiterCheckFile.csv";
+	private static final String HEADER_CHECK_FILE = "./src/resource/HeaderCheckFile.csv";
+	private static final String DELIMITER_STATE_CODE_CHECK_FILE = "./src/resource/StateCodeDelimiterCheckFile.csv";
+	private static final String HEADER_STATE_CODE_CHECK_FILE = "./src/resource/StateCodeHeaderCheckFile.csv";
 	
 	@Test
 	public void givenIndiaCensusCsvFileReturnCorrectNumberOfRecords() {
@@ -123,4 +131,18 @@ public class CensusAnalyserTest {
 			Assert.assertEquals(CensusAnalyserException.ExceptionType.INCORRECT_HEADER, e.type);
 		}
 	}
+	
+	@Test
+	public void givenCSVFileWhenConverteToStateWiseSortedJsonFormatShouldMatchFirstAndLastElement(){
+		try {
+			CensusAnalyser censusAnalyser = new CensusAnalyser();
+			String sortedJsonData = censusAnalyser.stateWiseSortedCensusDataInJsonFormat(INDIA_CENSUS_CSV_FILE_PATH);
+			IndiaCensusCSV sortedData[] = new Gson().fromJson(sortedJsonData,IndiaCensusCSV[].class);
+			List<IndiaCensusCSV> sortedList = Arrays.stream(sortedData).collect(Collectors.toList());
+			String check = sortedList.get(0).getStateName()+" "+sortedList.get(sortedList.size()-1).getStateName();
+			Assert.assertEquals("Andhra Pradesh West Bengal", check);
+		} catch (CensusAnalyserException e) {
+		}
+	}
+	
 }
