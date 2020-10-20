@@ -135,7 +135,18 @@ public class CensusAnalyser<E> {
 		if (censusList.size() == 0 || censusList == null) {
 			throw new CensusAnalyserException("Empty List", ExceptionType.EMPTY_LIST);
 		}
-		List<IndiaCensusCSV> sortedList = censusList.stream().sorted(Comparator.comparing(IndiaCensusCSV::getPopulation))
+		List<IndiaCensusCSV> sortedList = censusList.stream().sorted(Comparator.comparing(IndiaCensusCSV::getPopulation).reversed())
+				.collect(Collectors.toList());
+		String sortedJsonData = new Gson().toJson(sortedList);
+		return sortedJsonData;
+	}
+	
+	public String populationDensityWiseSortedCensusDataInJsonFormat(String csvFilePath) throws CensusAnalyserException {
+		List<IndiaCensusCSV> censusList = (List<IndiaCensusCSV>) getCSVFileList(csvFilePath, IndiaCensusCSV.class);
+		if (censusList.size() == 0 || censusList == null) {
+			throw new CensusAnalyserException("Empty List", ExceptionType.EMPTY_LIST);
+		}
+		List<IndiaCensusCSV> sortedList = censusList.stream().sorted(Comparator.comparing(IndiaCensusCSV::getDensity).reversed())
 				.collect(Collectors.toList());
 		String sortedJsonData = new Gson().toJson(sortedList);
 		return sortedJsonData;
